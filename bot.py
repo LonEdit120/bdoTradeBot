@@ -5,11 +5,10 @@
 # https://api.telegram.org/bot384048169:AAFlQCkGu5DcwZ3WahIfJUqOvAFlpCRJKXM/setWebhook\?url\=https://lonedit120.ddns.net
 from flask import Flask
 from flask import request
+import tgbot
 
 app = Flask(__name__)
-
-global bot
-bot = telegram.Bot(token='TOKEN')
+bot = tgbot.Tgbot()
 
 @app.route('/', methods = ['GET', 'POST'])
 def bot():

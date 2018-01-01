@@ -3,7 +3,6 @@
 
 
 # https://api.telegram.org/bot384048169:AAFlQCkGu5DcwZ3WahIfJUqOvAFlpCRJKXM/setWebhook\?url\=https://lonedit120.ddns.net
-import telegram
 from flask import Flask
 from flask import request
 

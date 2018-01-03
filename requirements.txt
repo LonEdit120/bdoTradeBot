@@ -1,0 +1,4 @@
+telepot==12.5
+transitions==0.6.3
+Flask==0.12.2
+beautifulsoup4==4.6.0

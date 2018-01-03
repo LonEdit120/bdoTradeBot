@@ -7,9 +7,10 @@
 ![](https://i.imgur.com/peRnVKN.png)
 
 **Example on how to get the same result as the online simulator:**
-![](https://i.imgur.com/ewFYplj.png)
+![](https://i.imgur.com/BeLuJlN.png)
+
 
 
 
 ## FSM
-![](https://i.imgur.com/OWFB13O.png)
+![](https://i.imgur.com/vzxbJt8.png)

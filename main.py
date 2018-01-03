@@ -46,28 +46,28 @@ crate_type = InlineKeyboardMarkup(inline_keyboard=[
        [InlineKeyboardButton(text='Brass Ingot Crate', callback_data='brass')],
        [InlineKeyboardButton(text='Titanium Ingot Crate', callback_data='titanium')],
        [InlineKeyboardButton(text='Calpheon Timber Crate', callback_data='calp')],
-       [InlineKeyboardButton(text='Back to menu', callback_data='menu')]])
+       [InlineKeyboardButton(text='Back to initial', callback_data='menu')]])
 route = InlineKeyboardMarkup(inline_keyboard=[
        [InlineKeyboardButton(text='Grana -> Valencia', callback_data='grana')],
        [InlineKeyboardButton(text='Epheria -> Valencia', callback_data='epheria')],
        [InlineKeyboardButton(text='Trent -> Valencia', callback_data='trent')],
-       [InlineKeyboardButton(text='Back to menu', callback_data='menu')]])
+       [InlineKeyboardButton(text='Back to initial', callback_data='menu')]])
 level = InlineKeyboardMarkup(inline_keyboard=[
        [InlineKeyboardButton(text='Artisan', callback_data='artisan')],
        [InlineKeyboardButton(text='Master', callback_data='master')],
-       [InlineKeyboardButton(text='Back to menu', callback_data='menu')]])
+       [InlineKeyboardButton(text='Back to initial', callback_data='menu')]])
 buff = InlineKeyboardMarkup(inline_keyboard=[
        [InlineKeyboardButton(text='Yes', callback_data='yes')],
        [InlineKeyboardButton(text='No', callback_data='no')],
-       [InlineKeyboardButton(text='Back to menu', callback_data='menu')]])
+       [InlineKeyboardButton(text='Back to initial', callback_data='menu')]])
 
 class assistant(object):
-    def show_menu(self, chat_id):
-        global tele
-        print('@@@@@@@@@@@@@@@@@@@@@@show_menu')
-        tele.sendPhoto(chat_id,open('./bdo.jpg','rb'))
-        tele.sendMessage(chat_id, 'Hello, please select which trading service you need', reply_markup=trade)
-        return 'OK'
+    # def show_menu(self, chat_id):
+    #     global tele
+    #     print('@@@@@@@@@@@@@@@@@@@@@@show_menu')
+    #     tele.sendPhoto(chat_id,open('./bdo.jpg','rb'))
+    #     tele.sendMessage(chat_id, 'Hello, please select which trading service you need', reply_markup=trade)
+    #     return 'OK'
     def price_each(self, chat_id):
         global tele
         print('@@@@@@@@@@@@@@@@@@@@@@price_each')
@@ -167,6 +167,7 @@ class assistant(object):
         global trade_amount
         global total
         total = (base + route_base + lv_base + buff_base) * trade_amount
+        tele.sendPhoto(chat_id,open('./bdo.jpg','rb'))
         tele.sendMessage(chat_id, 'Base Price : ' + str(base))
         tele.sendMessage(chat_id, 'Distance Bonus : ' + str(route_base))
         tele.sendMessage(chat_id, 'Bargain Price : ' + str(lv_base))
@@ -174,8 +175,7 @@ class assistant(object):
         tele.sendMessage(chat_id, 'Total Profit : ' + str(total))
         return 'OK'
 
-states = ['initial', {'name':'show_menu', 'on_enter' : ['show_menu']},
-                     {'name':'price_each', 'on_enter' : ['price_each']},
+states = ['initial', {'name':'price_each', 'on_enter' : ['price_each']},
                      {'name':'calculator', 'on_enter' : ['calculator']},
                      {'name':'give_price', 'on_enter' : ['give_price']},
                      {'name':'set_type', 'on_enter': ['set_type']},
@@ -187,13 +187,12 @@ states = ['initial', {'name':'show_menu', 'on_enter' : ['show_menu']},
                      {'name':'set_buff', 'on_enter':['set_buff']},
                      {'name':'show_result', 'on_enter':['show_result']},]
 
-transitions = [['welcome_user', 'initial', 'show_menu'],
-               ['want_to_search_price', 'show_menu', 'price_each'],
-               ['want_to_calculate', 'show_menu', 'calculator'],
-               ['back_to_menu', '*', 'show_menu'],
+transitions = [['want_to_search_price', 'initial', 'price_each'],
+               ['want_to_calculate', 'initial', 'calculator'],
+               ['back_to_menu', '*', 'initial'],
                ['ask_price', 'price_each', 'give_price'],
                ['ask_type', 'calculator', 'set_type'],
-               ['ask_author', 'show_menu', 'show_author'],
+               ['ask_author', 'initial', 'show_author'],
                ['ask_amount', 'set_type', 'set_amount'],
                ['ask_route', 'set_amount', 'set_route'],
                ['ask_lv', 'set_route', 'set_lv'],
@@ -227,23 +226,27 @@ def bot():
             text = message['text']
             if message['message_id'] > message_id:
                 message_id = message['message_id']
-                if text == '/start':
-                    black_spirit.welcome_user(chat_id)
+                if text == '/calculate':
+                    black_spirit.want_to_calculate(chat_id)
+                elif text == '/author':
+                    black_spirit.ask_author(chat_id)
+                    black_spirit.back_to_menu(chat_id)
+                elif text == '/each':
+                    black_spirit.want_to_search_price(chat_id)
                 elif black_spirit.state == 'set_type':
                     black_spirit.ask_amount(chat_id, text)
                     tele.sendMessage(chat_id, 'Which route are you going to take ?', reply_markup=route)
                 elif black_spirit.state == 'set_lv':
                     black_spirit.ask_lv_number(chat_id, text)
+                else:
+                    tele.sendMessage(chat_id, 'Only /calculate /author /each can be typed in initial')
+
 
         callback_query = userJson.get('callback_query')
         if callback_query:
             chat_id = callback_query['from']['id']
             data = callback_query['data']
-            if data == 'price':
-                black_spirit.want_to_search_price(chat_id)
-            elif data == 'calculate':
-                black_spirit.want_to_calculate(chat_id)
-            elif data == 'menu':
+            if data == 'menu':
                 black_spirit.back_to_menu(chat_id)
             elif black_spirit.state == 'price_each':
                 black_spirit.ask_price(chat_id, data)
@@ -251,9 +254,6 @@ def bot():
             elif black_spirit.state == 'calculator':
                 black_spirit.ask_type(chat_id, data)
                 # tele.sendMessage(chat_id, str(base))
-            elif data == 'author':
-                black_spirit.ask_author(chat_id)
-                black_spirit.back_to_menu(chat_id)
             elif black_spirit.state == 'set_amount':
                 black_spirit.ask_route(chat_id, data)
                 # tele.sendMessage(chat_id, str(route_base))
